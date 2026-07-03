@@ -2,3 +2,24 @@ node_modules/
 dist/
 .env
 *.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker-data/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test coverage
+coverage/
+.vite/

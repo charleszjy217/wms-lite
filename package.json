@@ -3,8 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "backend",
+    "frontend",
+    "packages/shared",
+    "integrations/*"
+  ],
   "scripts": {
-    "test": "echo \"ok\" && exit 0"
+    "test": "npm -ws --if-present test",
+    "test:backend": "npm -w backend test",
+    "test:frontend": "npm -w frontend test",
+    "build": "npm -ws --if-present build",
+    "build:backend": "npm -w backend build",
+    "build:frontend": "npm -w frontend build",
+    "lint": "npm -ws --if-present lint",
+    "clean": "npm -ws --if-present clean"
   },
   "devDependencies": {
     "typescript": "^5.7.0"

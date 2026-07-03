@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- Product & Category ---
+
+model ProductCategory {
+  id       String    @id @default(uuid()) @db.Uuid
+  code     String    @unique
+  name     String
+  parentId String?   @map("parent_id") @db.Uuid
+  path     String
+
+  parent  ProductCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children ProductCategory[] @relation("CategoryHierarchy")
+  products Product[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("product_category")
+}
+
+model Product {
+  id          String    @id @default(uuid()) @db.Uuid
+  skuCode     String    @unique @map("sku_code")
+  name        String
+  description String?
+  categoryId  String?   @map("category_id") @db.Uuid
+  brand       String?
+  unitOfMeasure String  @map("unit_of_measure")
+  barcode     String?
+  status      String    @default("ACTIVE")
+
+  category ProductCategory? @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("product")
+}
+
+// --- Warehouse & Location ---
+
+model Warehouse {
+  id      String @id @default(uuid()) @db.Uuid
+  code    String @unique
+  name    String
+  type    String @default("PHYSICAL")
+  address String?
+  status  String @default("ACTIVE")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  locations Location[]
+
+  @@map("warehouse")
+}
+
+model Location {
+  id          String  @id @default(uuid()) @db.Uuid
+  warehouseId String  @map("warehouse_id") @db.Uuid
+  area        String
+  aisle       String
+  rack        String
+  level       String
+  position    String
+  barcode     String?
+  status      String  @default("ACTIVE")
+  maxCapacity Float?  @map("max_capacity")
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("location")
+}

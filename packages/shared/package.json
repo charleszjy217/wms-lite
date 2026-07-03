@@ -1,0 +1,12 @@
+{
+  "name": "@wms-lite/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "echo \"ok\"",
+    "test": "echo \"ok\" && exit 0"
+  }
+}
