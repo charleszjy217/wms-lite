@@ -55,11 +55,12 @@ model Product {
 
   category ProductCategory? @relation(fields: [categoryId], references: [id])
 
-  batches           Batch[]
-  stockMovements    StockMovement[]
-  inventoryBalances InventoryBalance[]
-  productPrices     ProductPrice[]
-  priceChangeLogs   PriceChangeLog[]
+  batches             Batch[]
+  stockMovements      StockMovement[]
+  inventoryBalances   InventoryBalance[]
+  productPrices       ProductPrice[]
+  priceChangeLogs     PriceChangeLog[]
+  receivingOrderItems ReceivingOrderItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -147,8 +148,9 @@ model Batch {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  stockMovements    StockMovement[]
-  inventoryBalances InventoryBalance[]
+  stockMovements      StockMovement[]
+  inventoryBalances   InventoryBalance[]
+  receivingOrderItems ReceivingOrderItem[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -158,6 +160,52 @@ model Batch {
   @@index([expiryDate])
   @@index([status])
   @@map("batch")
+}
+
+// ============================================================================
+// 3b. Receiving Order (收货单)
+// ============================================================================
+
+model ReceivingOrder {
+  id          String   @id @default(uuid()) @db.Uuid
+  referenceNo String   @unique @map("reference_no")
+  status      String   @default("DRAFT")          // DRAFT → SUBMITTED → COMPLETED / CANCELLED
+  warehouseId String   @map("warehouse_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  operator    String
+  notes       String?
+  receiptDate DateTime? @map("receipt_date")
+
+  items ReceivingOrderItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([referenceNo])
+  @@index([warehouseId])
+  @@index([locationId])
+  @@map("receiving_order")
+}
+
+model ReceivingOrderItem {
+  id               String    @id @default(uuid()) @db.Uuid
+  receivingOrderId String    @map("receiving_order_id") @db.Uuid
+  productId        String    @map("product_id") @db.Uuid
+  batchId          String?   @map("batch_id") @db.Uuid
+  batchNo          String    @map("batch_no")
+  productionDate   DateTime? @map("production_date")
+  expiryDate       DateTime? @map("expiry_date")
+  quantity         Float
+
+  receivingOrder ReceivingOrder @relation(fields: [receivingOrderId], references: [id], onDelete: Cascade)
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  batch          Batch?         @relation(fields: [batchId], references: [id], onDelete: Restrict)
+
+  @@index([receivingOrderId])
+  @@index([productId])
+  @@index([batchId])
+  @@map("receiving_order_item")
 }
 
 // ============================================================================
