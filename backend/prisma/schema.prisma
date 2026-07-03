@@ -49,7 +49,7 @@ model Product {
   categoryId     String?  @map("category_id") @db.Uuid
   brand          String?
   unitOfMeasure  String   @map("unit_of_measure")
-  barcode        String?
+  barcode        String?   @unique
   specifications Json?             // 规格属性 — flexible key/value pairs
   status         String   @default("ACTIVE")
 
