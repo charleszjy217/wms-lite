@@ -1,37 +1,55 @@
-import { ConfigProvider, Layout, Typography } from 'antd';
+import { ConfigProvider, App as AntApp } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { themeConfig } from './theme';
+import { AuthProvider } from './contexts/AuthContext';
+import DashboardLayout from './layouts/DashboardLayout';
+import AuthGuard from './components/AuthGuard';
+import LoginPage from './pages/auth/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import ProductListPage from './pages/product/ProductListPage';
+import WarehouseListPage from './pages/warehouse/WarehouseListPage';
+import BatchListPage from './pages/batch/BatchListPage';
+import InventoryPage from './pages/inventory/InventoryPage';
+import PricingListPage from './pages/pricing/PricingListPage';
+import IntegrationPage from './pages/integration/IntegrationPage';
 
-const { Header, Content } = Layout;
-const { Title, Text } = Typography;
-
-const themeConfig = {
-  token: {
-    colorPrimary: '#1677FF',
-    borderRadius: 6,
-  },
-};
-
-function App() {
+/**
+ * 应用根组件 — 主题 / Locale / Auth / 路由
+ * 注意：main.tsx 外层已包裹 <BrowserRouter>
+ */
+export default function App() {
   return (
     <ConfigProvider locale={zhCN} theme={themeConfig}>
-      <Layout style={{ minHeight: '100vh' }}>
-        <Header
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 24px',
-          }}
-        >
-          <Title level={4} style={{ color: '#fff', margin: 0 }}>
-            WMS-lite
-          </Title>
-        </Header>
-        <Content style={{ padding: 24 }}>
-          <Text type="secondary">库存管理系统 - 正在建设中...</Text>
-        </Content>
-      </Layout>
+      <AntApp>
+        <AuthProvider>
+          <Routes>
+            {/* 公开路由 */}
+            <Route path="/login" element={<LoginPage />} />
+
+            {/* 受保护路由 */}
+            <Route
+              element={
+                <AuthGuard>
+                  <DashboardLayout />
+                </AuthGuard>
+              }
+            >
+              <Route index element={<DashboardPage />} />
+              <Route path="products" element={<ProductListPage />} />
+              <Route path="warehouses" element={<WarehouseListPage />} />
+              <Route path="batches" element={<BatchListPage />} />
+              <Route path="inventory" element={<InventoryPage />} />
+              <Route path="pricing" element={<PricingListPage />} />
+              <Route path="integration" element={<IntegrationPage />} />
+            </Route>
+
+            {/* 兜底：所有未匹配路由重定向首页 */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </AntApp>
     </ConfigProvider>
   );
 }
 
-export default App;
