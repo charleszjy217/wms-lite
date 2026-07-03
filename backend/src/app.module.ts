@@ -7,9 +7,10 @@ import { AuditModule } from './audit/audit.module';
 import { PricingModule } from './pricing/pricing.module';
 import { ProductsModule } from './products/products.module';
 import { WarehousesModule } from './warehouses/warehouses.module';
+import { BatchesModule } from './batches/batches.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, AuditModule, PricingModule, ProductsModule, WarehousesModule],
+  imports: [PrismaModule, AuthModule, AuditModule, PricingModule, ProductsModule, WarehousesModule, BatchesModule],
   controllers: [AppController],
   providers: [AppService],
 })
