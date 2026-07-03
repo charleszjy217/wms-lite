@@ -12,6 +12,7 @@ import { InboundModule } from './inbound/inbound.module';
 import { TransferModule } from './transfer/transfer.module';
 import { StocktakeModule } from './stocktake/stocktake.module';
 import { OutboundModule } from './outbound/outbound.module';
+import { InventoryQueryModule } from './inventory-query/inventory-query.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { OutboundModule } from './outbound/outbound.module';
     TransferModule,
     StocktakeModule,
     OutboundModule,
+    InventoryQueryModule,
   ],
   controllers: [AppController],
   providers: [AppService],
