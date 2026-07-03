@@ -41,6 +41,10 @@ model ProductCategory {
   @@map("product_category")
 }
 
+// ============================================================================
+// 2. Product
+// ============================================================================
+
 model Product {
   id             String   @id @default(uuid()) @db.Uuid
   skuCode        String   @unique @map("sku_code")
@@ -49,24 +53,577 @@ model Product {
   categoryId     String?  @map("category_id") @db.Uuid
   brand          String?
   unitOfMeasure  String   @map("unit_of_measure")
-  barcode        String?   @unique
-  specifications Json?             // 规格属性 — flexible key/value pairs
+  barcode        String?  @unique
+  specifications Json?
   status         String   @default("ACTIVE")
 
   category ProductCategory? @relation(fields: [categoryId], references: [id])
 
-  batches             Batch[]
-  stockMovements      StockMovement[]
-  inventoryBalances   InventoryBalance[]
-  productPrices       ProductPrice[]
-  priceChangeLogs     PriceChangeLog[]
-  receivingOrderItems ReceivingOrderItem[]
-  transferItems       TransferItem[]
-  stocktakeItems      StocktakeItem[]
   batches           Batch[]
   stockMovements    StockMovement[]
   inventoryBalances InventoryBalance[]
   productPrices     ProductPrice[]
   priceChangeLogs   PriceChangeLog[]
+  receivingOrderItems ReceivingOrderItem[]
   transferItems     TransferItem[]
   stocktakeItems    StocktakeItem[]
+  shippingOrderItems ShippingOrderItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@index([status])
+  @@map("product")
+}
+
+// ============================================================================
+// 3. Warehouse & Location
+// ============================================================================
+
+model Warehouse {
+  id        String     @id @default(uuid()) @db.Uuid
+  code      String     @unique
+  name      String
+  type      String     @default("PHYSICAL")
+  address   String?
+  status    String     @default("ACTIVE")
+
+  locations Location[]
+  zones     Zone[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@map("warehouse")
+}
+
+model Zone {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String
+  name        String
+  warehouseId String   @map("warehouse_id") @db.Uuid
+  status      String   @default("ACTIVE")
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+  locations Location[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([warehouseId])
+  @@index([status])
+  @@map("zone")
+}
+
+model Location {
+  id           String   @id @default(uuid()) @db.Uuid
+  warehouseId  String   @map("warehouse_id") @db.Uuid
+  area         String
+  aisle        String
+  rack         String
+  level        String
+  position     String
+  barcode      String?
+  status       String   @default("ACTIVE")
+  maxCapacity  Float?   @map("max_capacity")
+
+  zoneId       String?  @map("zone_id") @db.Uuid
+  zone         Zone?    @relation(fields: [zoneId], references: [id])
+  warehouse    Warehouse @relation(fields: [warehouseId], references: [id])
+
+  inventoryBalances InventoryBalance[]
+  stockMovementsFrom  StockMovement[]  @relation("StockMovementFromLocation")
+  stockMovementsTo    StockMovement[]  @relation("StockMovementToLocation")
+  receivingOrders     ReceivingOrder[]
+  transferOrdersFrom  TransferOrder[]  @relation("TransferFromLocation")
+  transferOrdersTo    TransferOrder[]  @relation("TransferToLocation")
+  stocktakeOrders     StocktakeOrder[]
+  shippingOrders      ShippingOrder[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([warehouseId])
+  @@index([status])
+  @@index([barcode])
+  @@map("location")
+}
+
+// ============================================================================
+// 4. Batch
+// ============================================================================
+
+model Batch {
+  id             String   @id @default(uuid()) @db.Uuid
+  batchNo        String   @map("batch_no")
+  productId      String   @map("product_id") @db.Uuid
+  productionDate DateTime? @map("production_date")
+  expiryDate     DateTime? @map("expiry_date")
+  status         String   @default("ACTIVE")
+
+  product          Product          @relation(fields: [productId], references: [id])
+  stockMovements   StockMovement[]
+  inventoryBalances InventoryBalance[]
+  receivingOrderItems ReceivingOrderItem[]
+  transferItems    TransferItem[]
+  stocktakeItems   StocktakeItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([batchNo, productId])
+  @@index([productId])
+  @@index([expiryDate])
+  @@index([status])
+  @@map("batch")
+}
+
+// ============================================================================
+// 5. Stock Movement
+// ============================================================================
+
+model StockMovement {
+  id             String   @id @default(uuid()) @db.Uuid
+  type           String
+  productId      String   @map("product_id") @db.Uuid
+  batchId        String   @map("batch_id") @db.Uuid
+  fromLocationId String?  @map("from_location_id") @db.Uuid
+  toLocationId   String?  @map("to_location_id") @db.Uuid
+  quantity       Float
+  referenceNo    String?  @map("reference_no")
+  operator       String
+  reason         String?
+
+  product       Product   @relation(fields: [productId], references: [id])
+  batch         Batch     @relation(fields: [batchId], references: [id])
+  fromLocation  Location? @relation("StockMovementFromLocation", fields: [fromLocationId], references: [id])
+  toLocation    Location? @relation("StockMovementToLocation", fields: [toLocationId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@index([batchId])
+  @@index([fromLocationId])
+  @@index([toLocationId])
+  @@index([type])
+  @@index([referenceNo])
+  @@index([createdAt])
+  @@map("stock_movement")
+}
+
+// ============================================================================
+// 6. Inventory Balance
+// ============================================================================
+
+model InventoryBalance {
+  id         String   @id @default(uuid()) @db.Uuid
+  productId  String   @map("product_id") @db.Uuid
+  locationId String   @map("location_id") @db.Uuid
+  batchId    String   @map("batch_id") @db.Uuid
+  quantity   Float    @default(0)
+
+  product  Product  @relation(fields: [productId], references: [id])
+  location Location @relation(fields: [locationId], references: [id])
+  batch    Batch    @relation(fields: [batchId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([productId, locationId, batchId])
+  @@index([productId])
+  @@index([locationId])
+  @@index([batchId])
+  @@map("inventory_balance")
+}
+
+// ============================================================================
+// 7. Pricing
+// ============================================================================
+
+model PriceList {
+  id        String   @id @default(uuid()) @db.Uuid
+  code      String   @unique
+  name      String
+  status    String   @default("ACTIVE")
+
+  productPrices ProductPrice[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([code])
+  @@index([status])
+  @@map("price_list")
+}
+
+model ProductPrice {
+  id            String   @id @default(uuid()) @db.Uuid
+  priceListId   String   @map("price_list_id") @db.Uuid
+  productId     String   @map("product_id") @db.Uuid
+  unitPrice     Float    @map("unit_price")
+  effectiveDate DateTime @map("effective_date")
+  endDate       DateTime? @map("end_date")
+
+  priceList PriceList @relation(fields: [priceListId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  changeLogs PriceChangeLog[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([priceListId])
+  @@index([productId])
+  @@index([effectiveDate, endDate])
+  @@map("product_price")
+}
+
+model PriceChangeLog {
+  id             String   @id @default(uuid()) @db.Uuid
+  productPriceId String?  @map("product_price_id") @db.Uuid
+  productId      String?  @map("product_id") @db.Uuid
+  oldPrice       Float    @map("old_price")
+  newPrice       Float    @map("new_price")
+  effectiveDate  DateTime @map("effective_date")
+  operator       String
+  reason         String?
+
+  productPrice ProductPrice? @relation(fields: [productPriceId], references: [id])
+  product      Product?      @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productPriceId])
+  @@index([productId])
+  @@index([effectiveDate])
+  @@map("price_change_log")
+}
+
+// ============================================================================
+// 8. User, Role, Permission (RBAC)
+// ============================================================================
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  username     String   @unique
+  email        String   @unique
+  password     String
+  displayName  String?  @map("display_name")
+  status       String   @default("ACTIVE")
+
+  userRoles UserRole[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([username])
+  @@index([email])
+  @@index([status])
+  @@map("user")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  name        String
+  description String?
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([code])
+  @@map("role")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  code        String   @unique
+  name        String
+  description String?
+
+  rolePermissions RolePermission[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([code])
+  @@map("permission")
+}
+
+model UserRole {
+  id     String @id @default(uuid()) @db.Uuid
+  userId String @map("user_id") @db.Uuid
+  roleId String @map("role_id") @db.Uuid
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@map("user_role")
+}
+
+model RolePermission {
+  id           String @id @default(uuid()) @db.Uuid
+  roleId       String @map("role_id") @db.Uuid
+  permissionId String @map("permission_id") @db.Uuid
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+  @@map("role_permission")
+}
+
+// ============================================================================
+// 9. Audit Log
+// ============================================================================
+
+model AuditLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  action     String
+  before     String?
+  after      String?
+  operator   String
+  reason     String?
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entityType, entityId])
+  @@index([operator])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+// ============================================================================
+// 10. Inbound — Receiving Order
+// ============================================================================
+
+model ReceivingOrder {
+  id           String   @id @default(uuid()) @db.Uuid
+  referenceNo  String   @unique @map("reference_no")
+  status       String   @default("DRAFT")
+  warehouseId  String   @map("warehouse_id") @db.Uuid
+  locationId   String   @map("location_id") @db.Uuid
+  operator     String
+  notes        String?
+  receiptDate  DateTime? @map("receipt_date")
+
+  location  Location             @relation(fields: [locationId], references: [id])
+  items     ReceivingOrderItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([referenceNo])
+  @@index([warehouseId])
+  @@index([locationId])
+  @@map("receiving_order")
+}
+
+model ReceivingOrderItem {
+  id               String    @id @default(uuid()) @db.Uuid
+  receivingOrderId String    @map("receiving_order_id") @db.Uuid
+  productId        String    @map("product_id") @db.Uuid
+  batchId          String?   @map("batch_id") @db.Uuid
+  batchNo          String    @map("batch_no")
+  productionDate   DateTime? @map("production_date")
+  expiryDate       DateTime? @map("expiry_date")
+  quantity         Float
+
+  order   ReceivingOrder @relation(fields: [receivingOrderId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  batch   Batch?         @relation(fields: [batchId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([receivingOrderId])
+  @@index([productId])
+  @@map("receiving_order_item")
+}
+
+// ============================================================================
+// 11. Transfer Order
+// ============================================================================
+
+model TransferOrder {
+  id                String   @id @default(uuid()) @db.Uuid
+  referenceNo       String   @unique @map("reference_no")
+  status            String   @default("DRAFT")
+  sourceWarehouseId String   @map("source_warehouse_id") @db.Uuid
+  sourceLocationId  String   @map("source_location_id") @db.Uuid
+  targetWarehouseId String   @map("target_warehouse_id") @db.Uuid
+  targetLocationId  String   @map("target_location_id") @db.Uuid
+  operator          String
+  notes             String?
+
+  sourceLocation Location @relation("TransferFromLocation", fields: [sourceLocationId], references: [id])
+  targetLocation Location @relation("TransferToLocation", fields: [targetLocationId], references: [id])
+  items          TransferItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([referenceNo])
+  @@map("transfer_order")
+}
+
+model TransferItem {
+  id             String  @id @default(uuid()) @db.Uuid
+  transferOrderId String @map("transfer_order_id") @db.Uuid
+  productId      String  @map("product_id") @db.Uuid
+  batchId        String  @map("batch_id") @db.Uuid
+  quantity       Float
+
+  order   TransferOrder @relation(fields: [transferOrderId], references: [id], onDelete: Cascade)
+  product Product       @relation(fields: [productId], references: [id])
+  batch   Batch         @relation(fields: [batchId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([transferOrderId])
+  @@index([productId])
+  @@map("transfer_item")
+}
+
+// ============================================================================
+// 12. Stocktake Order
+// ============================================================================
+
+model StocktakeOrder {
+  id          String   @id @default(uuid()) @db.Uuid
+  referenceNo String   @unique @map("reference_no")
+  status      String   @default("DRAFT")
+  warehouseId String   @map("warehouse_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  operator    String
+  notes       String?
+
+  location Location         @relation(fields: [locationId], references: [id])
+  items    StocktakeItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([referenceNo])
+  @@map("stocktake_order")
+}
+
+model StocktakeItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  stocktakeOrderId String   @map("stocktake_order_id") @db.Uuid
+  productId        String   @map("product_id") @db.Uuid
+  batchId          String   @map("batch_id") @db.Uuid
+  expectedQuantity Float    @map("expected_quantity")
+  actualQuantity   Float?   @map("actual_quantity")
+  difference       Float?   @map("difference")
+
+  order   StocktakeOrder @relation(fields: [stocktakeOrderId], references: [id], onDelete: Cascade)
+  product Product        @relation(fields: [productId], references: [id])
+  batch   Batch          @relation(fields: [batchId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([stocktakeOrderId])
+  @@index([productId])
+  @@map("stocktake_item")
+}
+
+// ============================================================================
+// 13. Outbound — Shipping Order (FEFO)
+// ============================================================================
+
+model ShippingOrder {
+  id          String   @id @default(uuid()) @db.Uuid
+  referenceNo String   @unique @map("reference_no")
+  status      String   @default("DRAFT")
+  warehouseId String   @map("warehouse_id") @db.Uuid
+  locationId  String   @map("location_id") @db.Uuid
+  operator    String
+  notes       String?
+  shipmentDate DateTime? @map("shipment_date")
+
+  location Location              @relation(fields: [locationId], references: [id])
+  items    ShippingOrderItem[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([referenceNo])
+  @@index([warehouseId])
+  @@index([locationId])
+  @@map("shipping_order")
+}
+
+model ShippingOrderItem {
+  id              String @id @default(uuid()) @db.Uuid
+  shippingOrderId String @map("shipping_order_id") @db.Uuid
+  productId       String @map("product_id") @db.Uuid
+  quantity        Float
+
+  order   ShippingOrder @relation(fields: [shippingOrderId], references: [id], onDelete: Cascade)
+  product Product       @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([shippingOrderId])
+  @@index([productId])
+  @@map("shipping_order_item")
+}
+
+// ============================================================================
+// 14. Integration
+// ============================================================================
+
+model IntegrationEndpoint {
+  id         String   @id @default(uuid()) @db.Uuid
+  code       String   @unique
+  name       String
+  url        String
+  method     String   @default("GET")
+  headers    String?
+  authType   String?  @map("auth_type")
+  authConfig String?  @map("auth_config")
+  status     String   @default("ACTIVE")
+
+  syncJobs SyncJob[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([code])
+  @@index([status])
+  @@map("integration_endpoint")
+}
+
+model SyncJob {
+  id           String    @id @default(uuid()) @db.Uuid
+  endpointId   String    @map("endpoint_id") @db.Uuid
+  status       String    @default("PENDING")
+  startedAt    DateTime? @map("started_at")
+  completedAt  DateTime? @map("completed_at")
+  errorMessage String?   @map("error_message")
+  result       String?
+
+  endpoint IntegrationEndpoint @relation(fields: [endpointId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([endpointId])
+  @@index([status])
+  @@map("sync_job")
+}

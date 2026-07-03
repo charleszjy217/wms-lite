@@ -11,6 +11,7 @@ import { BatchesModule } from './batches/batches.module';
 import { InboundModule } from './inbound/inbound.module';
 import { TransferModule } from './transfer/transfer.module';
 import { StocktakeModule } from './stocktake/stocktake.module';
+import { OutboundModule } from './outbound/outbound.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { StocktakeModule } from './stocktake/stocktake.module';
     InboundModule,
     TransferModule,
     StocktakeModule,
+    OutboundModule,
   ],
   controllers: [AppController],
   providers: [AppService],
