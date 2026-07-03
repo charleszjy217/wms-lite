@@ -377,6 +377,12 @@ export class WarehousesService {
     const location = await this.prisma.location.create({
       data: {
         code: dto.code,
+        warehouseId: zone.warehouseId,
+        area: '',
+        aisle: '',
+        rack: '',
+        level: '',
+        position: '',
         zoneId: dto.zoneId,
         barcode: dto.barcode ?? null,
         status: dto.status ?? 'ACTIVE',
@@ -466,7 +472,7 @@ export class WarehousesService {
 
     // Check unique code within zone if code or zoneId changes
     const targetZoneId = dto.zoneId ?? existing.zoneId;
-    if (dto.code && dto.code !== existing.code) {
+    if (dto.code && dto.code !== existing.code && targetZoneId) {
       const conflict = await this.prisma.location.findUnique({
         where: {
           code_zoneId: { code: dto.code, zoneId: targetZoneId },

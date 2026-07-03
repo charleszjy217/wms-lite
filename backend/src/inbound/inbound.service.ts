@@ -39,6 +39,9 @@ export class InboundService {
     if (!location) {
       throw new NotFoundException('库位不存在');
     }
+    if (!location.zone) {
+      throw new BadRequestException('库位未分配库区');
+    }
     if (location.zone.warehouseId !== dto.warehouseId) {
       throw new BadRequestException('库位不属于指定仓库');
     }

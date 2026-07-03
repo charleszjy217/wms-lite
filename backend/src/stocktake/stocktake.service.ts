@@ -66,7 +66,7 @@ export class StocktakeService {
       data: {
         warehouseId: dto.warehouseId,
         locationId: dto.locationId,
-        referenceNo: dto.referenceNo,
+        referenceNo: dto.referenceNo ?? this.generateReferenceNo(),
         status: 'DRAFT',
         operator,
         items: {
@@ -122,7 +122,7 @@ export class StocktakeService {
     const updatedItems = await this.prisma.$transaction(async (tx) => {
       const results = [];
       for (const si of stocktake.items) {
-        const actual = countMap.get(si.id) ?? si.actualQuantity;
+        const actual = countMap.get(si.id) ?? si.actualQuantity ?? 0;
         const difference = actual - si.expectedQuantity;
         const itemStatus = Math.abs(difference) < 0.001 ? 'MATCH' : 'MISMATCH';
 
@@ -173,7 +173,8 @@ export class StocktakeService {
     // Transaction: adjust balances + create stock movements
     await this.prisma.$transaction(async (tx) => {
       for (const item of stocktake.items) {
-        if (Math.abs(item.difference) < 0.001) continue;
+        const diff = item.difference ?? 0;
+        if (Math.abs(diff) < 0.001) continue;
 
         // Lock the balance row (if exists)
         const rows = await tx.$queryRawUnsafe<Array<{ id: string; quantity: number }>>(
@@ -185,7 +186,7 @@ export class StocktakeService {
           item.batchId,
         );
 
-        if (item.difference > 0) {
+        if (diff > 0) {
           // Stock increase — upsert
           await tx.$executeRawUnsafe(
             `INSERT INTO inventory_balance (id, product_id, location_id, batch_id, quantity, created_at, updated_at)
@@ -195,13 +196,13 @@ export class StocktakeService {
             item.productId,
             stocktake.locationId,
             item.batchId,
-            item.difference,
+            diff,
           );
         } else {
           // Stock decrease
           const balance = rows[0];
           const currentQty = balance ? Number(balance.quantity) : 0;
-          const absDiff = Math.abs(item.difference);
+          const absDiff = Math.abs(diff);
           const newQty = Math.max(0, currentQty - absDiff);
 
           if (balance) {
@@ -222,12 +223,12 @@ export class StocktakeService {
             type: 'ADJUSTMENT',
             productId: item.productId,
             batchId: item.batchId,
-            fromLocationId: item.difference < 0 ? stocktake.locationId : null,
-            toLocationId: item.difference > 0 ? stocktake.locationId : null,
-            quantity: item.difference,
+            fromLocationId: diff < 0 ? stocktake.locationId : null,
+            toLocationId: diff > 0 ? stocktake.locationId : null,
+            quantity: diff,
             referenceNo: stocktake.referenceNo ?? stocktake.id,
             operator,
-            reason: `盘点调整: 预期=${item.expectedQuantity}, 实盘=${item.actualQuantity}, 差异=${item.difference}`,
+            reason: `盘点调整: 预期=${item.expectedQuantity}, 实盘=${item.actualQuantity}, 差异=${diff}`,
           },
         });
 
@@ -309,7 +310,6 @@ export class StocktakeService {
           items: {
             include: { product: true, batch: true },
           },
-          warehouse: true,
           location: true,
         },
       }),
@@ -326,7 +326,6 @@ export class StocktakeService {
         items: {
           include: { product: true, batch: true },
         },
-        warehouse: true,
         location: true,
       },
     });
@@ -334,5 +333,17 @@ export class StocktakeService {
     if (!stocktake) throw new NotFoundException('盘点单不存在');
 
     return stocktake;
+  }
+
+  private generateReferenceNo(): string {
+    const dateStr = new Date()
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, '');
+    const randomStr = Math.random()
+      .toString(36)
+      .substring(2, 6)
+      .toUpperCase();
+    return `ST-${dateStr}-${randomStr}`;
   }
 }

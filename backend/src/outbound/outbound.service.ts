@@ -13,7 +13,7 @@ import { UpdateShippingOrderDto } from './dto/update-shipping-order.dto';
 import { QueryShippingOrderDto } from './dto/query-shipping-order.dto';
 
 /** Result of a FEFO allocation for a single item */
-interface FefoAllocation {
+export interface FefoAllocation {
   productId: string;
   productName: string;
   requestedQty: number;
@@ -27,7 +27,7 @@ interface FefoAllocation {
 }
 
 /** A batch with available inventory for FEFO */
-interface AvailableBatch {
+export interface AvailableBatch {
   batchId: string;
   batchNo: string;
   expiryDate: Date | null;

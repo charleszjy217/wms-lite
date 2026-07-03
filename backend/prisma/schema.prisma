@@ -112,6 +112,7 @@ model Zone {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([code, warehouseId])
   @@index([warehouseId])
   @@index([status])
   @@map("zone")
@@ -125,6 +126,7 @@ model Location {
   rack         String
   level        String
   position     String
+  code         String
   barcode      String?
   status       String   @default("ACTIVE")
   maxCapacity  Float?   @map("max_capacity")
@@ -145,6 +147,7 @@ model Location {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  @@unique([code, zoneId])
   @@index([warehouseId])
   @@index([status])
   @@index([barcode])
@@ -527,6 +530,7 @@ model StocktakeItem {
   expectedQuantity Float    @map("expected_quantity")
   actualQuantity   Float?   @map("actual_quantity")
   difference       Float?   @map("difference")
+  status           String   @default("PENDING")
 
   order   StocktakeOrder @relation(fields: [stocktakeOrderId], references: [id], onDelete: Cascade)
   product Product        @relation(fields: [productId], references: [id])
