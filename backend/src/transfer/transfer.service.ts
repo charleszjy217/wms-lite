@@ -48,7 +48,7 @@ export class TransferService {
         sourceLocationId: dto.sourceLocationId,
         targetWarehouseId: dto.targetWarehouseId,
         targetLocationId: dto.targetLocationId,
-        referenceNo: dto.referenceNo,
+        referenceNo: dto.referenceNo ?? this.generateReferenceNo(),
         status: 'DRAFT',
         operator,
         items: {
@@ -306,9 +306,7 @@ export class TransferService {
           items: {
             include: { product: true, batch: true },
           },
-          sourceWarehouse: true,
           sourceLocation: true,
-          targetWarehouse: true,
           targetLocation: true,
         },
       }),
@@ -325,9 +323,7 @@ export class TransferService {
         items: {
           include: { product: true, batch: true },
         },
-        sourceWarehouse: true,
         sourceLocation: true,
-        targetWarehouse: true,
         targetLocation: true,
       },
     });
@@ -335,5 +331,17 @@ export class TransferService {
     if (!transfer) throw new NotFoundException('调拨单不存在');
 
     return transfer;
+  }
+
+  private generateReferenceNo(): string {
+    const dateStr = new Date()
+      .toISOString()
+      .slice(0, 10)
+      .replace(/-/g, '');
+    const randomStr = Math.random()
+      .toString(36)
+      .substring(2, 6)
+      .toUpperCase();
+    return `TR-${dateStr}-${randomStr}`;
   }
 }
