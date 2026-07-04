@@ -13,7 +13,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
 } from '@ant-design/icons';
-import { Dropdown, theme } from 'antd';
+import { Dropdown } from 'antd';
 import { useAuth } from '../hooks/useAuth';
 import type { MenuDataItem } from '@ant-design/pro-layout';
 
@@ -38,7 +38,6 @@ const menuItems: MenuDataItem[] = [
 export default function DashboardLayout() {
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { token } = theme.useToken();
 
   return (
     <ProLayout

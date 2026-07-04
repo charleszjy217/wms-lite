@@ -19,6 +19,16 @@ Object.defineProperty(window, 'matchMedia', {
 });
 
 /**
+ * jsdom 未实现 window.getComputedStyle 的部分特性（如第二个参数），
+ * 而 antd Table / rc-table 依赖它来计算滚动条尺寸。
+ * 我们简单地忽略第二个参数以避免抛出错误。
+ */
+const originalGetComputedStyle = window.getComputedStyle.bind(window);
+window.getComputedStyle = (elt: Element, _pseudoElt?: string | null) => {
+  return originalGetComputedStyle(elt);
+};
+
+/**
  * @ant-design/pro-layout 在 BaseMenu 中使用 setTimeout 内部调度 setState，
  * 测试环境销毁后这些回调因 window 不可访问而抛出 ReferenceError。
  * 全局 mock ProLayout 避免此类未处理错误。
