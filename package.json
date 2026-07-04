@@ -20,6 +20,10 @@
     "lint": "npm -ws --if-present lint",
     "clean": "npm -ws --if-present clean"
   },
+  "overrides": {
+    "multer": "2.2.0",
+    "path-to-regexp": "8.4.2"
+  },
   "devDependencies": {
     "typescript": "^5.7.0"
   }
