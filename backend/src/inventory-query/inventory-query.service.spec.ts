@@ -42,7 +42,6 @@ const productId2 = 'prod-2';
 const locationId = 'loc-1';
 const locationId2 = 'loc-2';
 const batchId = 'batch-1';
-const batchId2 = 'batch-2';
 const warehouseId = 'wh-1';
 const categoryId = 'cat-1';
 
@@ -95,13 +94,6 @@ const mockBatch = {
   batchNo: 'BATCH-001',
   expiryDate: new Date('2026-08-15T12:00:00Z'),
   status: 'ACTIVE',
-};
-
-const mockBatch2 = {
-  id: batchId2,
-  batchNo: 'BATCH-002',
-  expiryDate: new Date('2026-06-01T12:00:00Z'),
-  status: 'EXPIRED',
 };
 
 const mockBalance = (overrides: Record<string, unknown> = {}) => ({

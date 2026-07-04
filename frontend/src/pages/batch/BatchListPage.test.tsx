@@ -68,9 +68,17 @@ function renderPage() {
   );
 }
 
+/** Mock config type that allows params.expired checks without `any` */
+interface MockRequestConfig {
+  params?: {
+    expired?: boolean | string;
+    [key: string]: unknown;
+  };
+}
+
 /** Default mock that returns empty-ish data for all standard API calls */
 function setupDefaultMock() {
-  vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
+  vi.mocked(client.get).mockImplementation(async (url: string, config?: MockRequestConfig) => {
     if (url === '/products') {
       return {
         data: {
@@ -85,8 +93,7 @@ function setupDefaultMock() {
       return { data: [] };
     }
     if (url === '/batches') {
-      const params = config?.params ?? {};
-      if (params.expired) {
+      if (config?.params?.expired) {
         return {
           data: {
             items: [],
@@ -151,7 +158,7 @@ describe('BatchListPage', () => {
   });
 
   it('shows expired alert when expired batches exist', async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
+    vi.mocked(client.get).mockImplementation(async (url: string, config?: MockRequestConfig) => {
       if (url === '/products') {
         return { data: { items: [] } };
       }
@@ -159,8 +166,7 @@ describe('BatchListPage', () => {
         return { data: [] };
       }
       if (url === '/batches') {
-        const params = config?.params ?? {};
-        if (params.expired) {
+        if (config?.params?.expired) {
           return { data: { items: [{ id: 'exp-1' }], total: 3, page: 1, limit: 1, totalPages: 3 } };
         }
         return mockPaginatedResponse([mockBatchItem()]);
@@ -188,7 +194,7 @@ describe('BatchListPage', () => {
   });
 
   it('shows expiry tags for different batch statuses', async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
+    vi.mocked(client.get).mockImplementation(async (url: string, config?: MockRequestConfig) => {
       if (url === '/products') {
         return { data: { items: [{ id: 'prod-001', name: '测试商品A', skuCode: 'SKU-A' }] } };
       }
@@ -196,8 +202,7 @@ describe('BatchListPage', () => {
         return { data: [mockBatchItem({ batchNo: 'BATCH-NEAR', remainingDays: 15, isNearExpiry: true })] };
       }
       if (url === '/batches') {
-        const params = config?.params ?? {};
-        if (params.expired) {
+        if (config?.params?.expired) {
           return { data: { items: [], total: 2, page: 1, limit: 1, totalPages: 2 } };
         }
         return mockPaginatedResponse([
@@ -261,7 +266,7 @@ describe('BatchListPage', () => {
   });
 
   it('disables outbound validation for expired batches', async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
+    vi.mocked(client.get).mockImplementation(async (url: string, config?: MockRequestConfig) => {
       if (url === '/products') {
         return { data: { items: [] } };
       }
@@ -269,8 +274,7 @@ describe('BatchListPage', () => {
         return { data: [] };
       }
       if (url === '/batches') {
-        const params = config?.params ?? {};
-        if (params.expired) {
+        if (config?.params?.expired) {
           return { data: { items: [], total: 0, page: 1, limit: 1, totalPages: 0 } };
         }
         return mockPaginatedResponse([

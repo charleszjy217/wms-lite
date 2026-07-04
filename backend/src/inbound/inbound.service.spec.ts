@@ -413,7 +413,8 @@ describe('InboundService', () => {
     });
 
     it('should generate referenceNo when not provided', async () => {
-      const { referenceNo: _, ...dtoWithoutRef } = createDto;
+      const dtoWithoutRef = { ...createDto };
+      delete (dtoWithoutRef as Record<string, unknown>).referenceNo;
       prisma.warehouse.findUnique.mockResolvedValue(mockWarehouse);
       prisma.location.findUnique.mockResolvedValue(mockLocation);
       prisma.product.findUnique.mockResolvedValue(mockProduct);
