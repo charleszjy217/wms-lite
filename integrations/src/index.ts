@@ -99,3 +99,29 @@ export type { UnitCategory, UnitDefinition } from './mapping/unit-converter.js';
 export type { DatePrecision, DateConversionRule } from './mapping/date-converter.js';
 export type { SchemaFieldType, SchemaFieldDef, SchemaDefinition, SchemaValidationError } from './mapping/schema-validator.js';
 export type { MappingConfigBundle } from './mapping/mapping-config.js';
+
+// ---- Wiring (集成链路) ----
+export { MasterDataSyncLink, InventoryPushFinanceLink, SsoLoginLink } from './wiring/index.js';
+export type {
+  // MasterDataSyncLink
+  ExternalProduct,
+  ExternalSupplier,
+  PaginatedResponse,
+  SyncResult,
+  MasterDataSyncLinkConfig,
+  // InventoryPushFinanceLink
+  InventoryPushPayload,
+  StockMovementEvent,
+  PushResult,
+  FinanceApiResponse,
+  InventoryPushFinanceLinkConfig,
+  // SsoLoginLink
+  SsoLoginConfig,
+  AuthorizeRequest,
+  AuthorizeResponse,
+  TokenExchangeRequest,
+  IdpTokenResponse,
+  IdTokenClaims,
+  SsoLoginResult,
+  LocalUserRecord,
+} from './wiring/index.js';
