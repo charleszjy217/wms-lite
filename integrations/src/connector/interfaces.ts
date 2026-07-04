@@ -4,6 +4,9 @@
 
 import type { EndpointConfig } from '../config/types.js';
 
+// Re-export for transport adapter implementations
+export type { EndpointConfig } from '../config/types.js';
+
 // ---- Transport (传输连接器) ----
 
 export type TransportType = 'HTTP' | 'SFTP' | 'DATABASE' | 'QUEUE' | 'CUSTOM';
