@@ -8,7 +8,8 @@
     "frontend",
     "packages/shared",
     "integrations",
-    "integrations/*"
+    "integrations/*",
+    "tests/load"
   ],
   "scripts": {
     "test": "npm -ws --if-present test",
