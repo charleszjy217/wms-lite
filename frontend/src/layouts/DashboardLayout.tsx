@@ -12,6 +12,10 @@ import {
   UserOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  InboxOutlined,
+  ExportOutlined,
+  SwapOutlined,
+  FileSearchOutlined,
 } from '@ant-design/icons';
 import { Dropdown } from 'antd';
 import { useAuth } from '../hooks/useAuth';
@@ -26,7 +30,18 @@ const menuItems: MenuDataItem[] = [
   { path: '/products', name: '商品管理', icon: <ShoppingOutlined /> },
   { path: '/warehouses', name: '仓库管理', icon: <DatabaseOutlined /> },
   { path: '/batches', name: '批次管理', icon: <ExperimentOutlined /> },
-  { path: '/inventory', name: '库存管理', icon: <StockOutlined /> },
+  {
+    path: '/inventory',
+    name: '库存管理',
+    icon: <StockOutlined />,
+    children: [
+      { path: '/inventory', name: '库存查询', icon: <StockOutlined /> },
+      { path: '/inbound', name: '入库', icon: <InboxOutlined /> },
+      { path: '/outbound', name: '出库', icon: <ExportOutlined /> },
+      { path: '/transfer', name: '调拨', icon: <SwapOutlined /> },
+      { path: '/stocktake', name: '盘点', icon: <FileSearchOutlined /> },
+    ],
+  },
   { path: '/pricing', name: '价格管理', icon: <DollarOutlined /> },
   { path: '/integration', name: '集成管理', icon: <ApiOutlined /> },
 ];
