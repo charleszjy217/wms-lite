@@ -60,6 +60,12 @@ jobs:
       - name: Test frontend
         run: npm -w frontend test
 
+      - name: Install e2e dependencies
+        run: npm --prefix e2e ci
+
+      - name: Run e2e tests
+        run: npm --prefix e2e test
+
   build:
     name: Build
     needs: test
