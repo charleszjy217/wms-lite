@@ -68,3 +68,7 @@ export { EnvSecretStore } from './secrets/env-store.js';
 export type { SyncTask, SyncTaskStatus, SyncTaskFilter } from './sync/types.js';
 export { InMemorySyncTaskTracker, SyncTaskTrackerError } from './sync/tracker.js';
 export type { SyncTaskTracker } from './sync/tracker.js';
+
+// ---- Transports ----
+export { HttpTransportConnector, AmqpTransportConnector, SftpTransportConnector, CsvFormatParser } from './transports/index.js';
+export type { HttpTransportOptions, AmqpTransportOptions, AmqpConnection, AmqpChannel, AmqpMessage, AmqpConnectionFactory, AmqpSendOptions, AmqpReceiveOptions, SftpTransportOptions, SftpClient, SftpClientFactory, SftpConnectionConfig, SftpFileInfo, CsvParseOptions, CsvSerializeOptions } from './transports/index.js';
