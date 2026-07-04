@@ -119,7 +119,7 @@ export class StocktakeService {
     }
 
     // Update each item
-    const updatedItems = await this.prisma.$transaction(async (tx) => {
+    await this.prisma.$transaction(async (tx) => {
       const results = [];
       for (const si of stocktake.items) {
         const actual = countMap.get(si.id) ?? si.actualQuantity ?? 0;

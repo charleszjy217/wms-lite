@@ -40,7 +40,6 @@ export default function PricingHistory() {
 
   useEffect(() => {
     fetchHistory();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = data.filter((item) => {

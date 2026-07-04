@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type dayjs from 'dayjs';
 import {
   Card,
   Form,
@@ -19,7 +20,7 @@ const { TextArea } = Input;
 interface FormValues {
   productId: string;
   newPrice: number;
-  effectiveDate: any; // dayjs object from DatePicker
+  effectiveDate: dayjs.Dayjs | null;
   reason: string;
 }
 

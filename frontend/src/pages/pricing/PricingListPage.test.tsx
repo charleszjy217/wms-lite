@@ -6,8 +6,6 @@ import zhCN from 'antd/locale/zh_CN';
 import { AuthProvider } from '../../contexts/AuthContext';
 import PricingListPage from './PricingListPage';
 
-import type { Mock } from 'vitest';
-
 /* ------------------------------------------------------------------ */
 /*  Mock API                                                           */
 /* ------------------------------------------------------------------ */

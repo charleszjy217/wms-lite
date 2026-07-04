@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import type dayjs from 'dayjs';
 import {
   Card,
   Form,
@@ -25,7 +26,7 @@ interface FormValues {
   productIds?: string[];
   adjustType: 'fixed' | 'percentage';
   adjustValue: number;
-  effectiveDate: any; // dayjs object from DatePicker
+  effectiveDate: dayjs.Dayjs | null;
   reason: string;
 }
 
