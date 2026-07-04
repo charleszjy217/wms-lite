@@ -70,7 +70,7 @@ function renderPage() {
 
 /** Default mock that returns empty-ish data for all standard API calls */
 function setupDefaultMock() {
-  vi.mocked(client.get).mockImplementation(async (url: string, config?: Record<string, unknown>) => {
+  vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
     if (url === '/products') {
       return {
         data: {
@@ -151,7 +151,7 @@ describe('BatchListPage', () => {
   });
 
   it('shows expired alert when expired batches exist', async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string, config?: Record<string, unknown>) => {
+    vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
       if (url === '/products') {
         return { data: { items: [] } };
       }
@@ -188,7 +188,7 @@ describe('BatchListPage', () => {
   });
 
   it('shows expiry tags for different batch statuses', async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string, config?: Record<string, unknown>) => {
+    vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
       if (url === '/products') {
         return { data: { items: [{ id: 'prod-001', name: '测试商品A', skuCode: 'SKU-A' }] } };
       }
@@ -261,7 +261,7 @@ describe('BatchListPage', () => {
   });
 
   it('disables outbound validation for expired batches', async () => {
-    vi.mocked(client.get).mockImplementation(async (url: string, config?: Record<string, unknown>) => {
+    vi.mocked(client.get).mockImplementation(async (url: string, config?: any) => {
       if (url === '/products') {
         return { data: { items: [] } };
       }
