@@ -48,20 +48,6 @@ function formatDate(iso: string | null): string {
   return `${y}-${m}-${day}`;
 }
 
-function today(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function calcRemainingDays(expiryDate: string): number {
-  const exp = new Date(expiryDate);
-  exp.setHours(0, 0, 0, 0);
-  const now = today();
-  const diffMs = exp.getTime() - now.getTime();
-  return Math.floor(diffMs / (1000 * 60 * 60 * 24));
-}
-
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
 /* ------------------------------------------------------------------ */
@@ -209,8 +195,9 @@ export default function BatchListPage() {
         total: result.total,
         totalPages: result.totalPages,
       });
-    } catch (err: any) {
-      message.error(err?.response?.data?.message ?? '获取批次列表失败');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      message.error(axiosErr?.response?.data?.message ?? '获取批次列表失败');
     } finally {
       setLoading(false);
     }
@@ -297,8 +284,9 @@ export default function BatchListPage() {
       setSelectedBatch(null);
       fetchData(pagination.page);
       fetchExpiringSummary();
-    } catch (err: any) {
-      message.error(err?.response?.data?.message ?? '更新失败');
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      message.error(axiosErr?.response?.data?.message ?? '更新失败');
     }
   };
 
@@ -307,11 +295,12 @@ export default function BatchListPage() {
     try {
       await client.post(`/batches/${record.id}/validate-outbound`);
       message.success(`批次 ${record.batchNo} 可用于出库`);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
       Modal.error({
         title: '出库拦截',
         icon: <ExclamationCircleOutlined />,
-        content: err?.response?.data?.message ?? '该批次已过期，不可用于出库',
+        content: axiosErr?.response?.data?.message ?? '该批次已过期，不可用于出库',
       });
     }
   };
