@@ -11,6 +11,10 @@ import ProductListPage from './pages/product/ProductListPage';
 import WarehouseListPage from './pages/warehouse/WarehouseListPage';
 import BatchListPage from './pages/batch/BatchListPage';
 import InventoryPage from './pages/inventory/InventoryPage';
+import InboundForm from './pages/inventory/InboundForm';
+import OutboundForm from './pages/inventory/OutboundForm';
+import TransferForm from './pages/inventory/TransferForm';
+import StocktakeForm from './pages/inventory/StocktakeForm';
 import PricingListPage from './pages/pricing/PricingListPage';
 import IntegrationPage from './pages/integration/IntegrationPage';
 
@@ -40,6 +44,10 @@ export default function App() {
               <Route path="warehouses" element={<WarehouseListPage />} />
               <Route path="batches" element={<BatchListPage />} />
               <Route path="inventory" element={<InventoryPage />} />
+              <Route path="inbound" element={<InboundForm />} />
+              <Route path="outbound" element={<OutboundForm />} />
+              <Route path="transfer" element={<TransferForm />} />
+              <Route path="stocktake" element={<StocktakeForm />} />
               <Route path="pricing" element={<PricingListPage />} />
               <Route path="integration" element={<IntegrationPage />} />
             </Route>
