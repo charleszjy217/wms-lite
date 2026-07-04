@@ -1,0 +1,47 @@
+{
+  "sourceSystem": "ERP_SAP",
+  "entityType": "Product",
+  "rules": [
+    {
+      "externalField": "MATNR",
+      "canonicalField": "sku",
+      "transform": [{ "type": "trim" }],
+      "required": true
+    },
+    {
+      "externalField": "MAKTX",
+      "canonicalField": "name",
+      "transform": [{ "type": "trim" }],
+      "required": true
+    },
+    {
+      "externalField": "MATKL",
+      "canonicalField": "categoryPath",
+      "transform": [
+        { "type": "trim" },
+        { "type": "replace", "pattern": "\\|", "replacement": "/" }
+      ]
+    },
+    {
+      "externalField": "MEINS",
+      "canonicalField": "unit",
+      "default": "pc"
+    },
+    {
+      "externalField": "EAN11",
+      "canonicalField": "barcode"
+    },
+    {
+      "externalField": "LVORM",
+      "canonicalField": "active",
+      "transform": [
+        { "type": "custom", "fn": "val => val === 'X' ? false : true" }
+      ],
+      "default": true
+    },
+    {
+      "externalField": "BRAND",
+      "canonicalField": "brand"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "sourceSystem": "ERP_SAP",
+  "fieldName": "status",
+  "strict": true,
+  "entries": [
+    { "externalCode": "A", "canonicalCode": "ACTIVE" },
+    { "externalCode": "E", "canonicalCode": "EXPIRED" },
+    { "externalCode": "Q", "canonicalCode": "QUARANTINED" },
+    { "externalCode": "R", "canonicalCode": "RECALLED" }
+  ]
+}

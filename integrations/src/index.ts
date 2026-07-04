@@ -72,3 +72,30 @@ export type { SyncTaskTracker } from './sync/tracker.js';
 // ---- Transports ----
 export { HttpTransportConnector, AmqpTransportConnector, SftpTransportConnector, CsvFormatParser } from './transports/index.js';
 export type { HttpTransportOptions, AmqpTransportOptions, AmqpConnection, AmqpChannel, AmqpMessage, AmqpConnectionFactory, AmqpSendOptions, AmqpReceiveOptions, SftpTransportOptions, SftpClient, SftpClientFactory, SftpConnectionConfig, SftpFileInfo, CsvParseOptions, CsvSerializeOptions } from './transports/index.js';
+
+// ---- Auth ----
+export { ApiKeyAuthConnector, BearerTokenAuthConnector, OAuth2ClientCredentialsConnector, BasicAuthConnector, MtlsAuthConnector, HmacAuthConnector } from './auth/index.js';
+export type { ApiKeyAuthConfig, BearerTokenAuthConfig, OAuth2ClientCredentialsConfig, BasicAuthConfig, MtlsAuthConfig, HmacAuthConfig, AuthResult } from './auth/index.js';
+
+// ---- Mapping & Format ----
+export { JsonFormatParser } from './mapping/format/json-parser.js';
+export { XmlFormatParser } from './mapping/format/xml-parser.js';
+export { CsvFormatParser } from './mapping/format/csv-parser.js';
+export { FixedWidthFormatParser } from './mapping/format/fixed-width-parser.js';
+export { FieldMapper } from './mapping/field-mapper.js';
+export { CodeMapper } from './mapping/code-mapper.js';
+export { UnitConverter } from './mapping/unit-converter.js';
+export { DateConverter } from './mapping/date-converter.js';
+export { SchemaValidator } from './mapping/schema-validator.js';
+  loadConfigFile,
+  loadConfigDirectory,
+  loadMappingConfigs,
+} from './mapping/mapping-config.js';
+
+export type { FixedWidthColumnDef, CsvParseOptions, XmlParseOptions, JsonParseOptions } from './mapping/format/types.js';
+export type { FieldMappingRule, FieldMappingConfig, FieldTransform } from './mapping/field-mapper.js';
+export type { CodeMappingEntry, CodeMappingDict } from './mapping/code-mapper.js';
+export type { UnitCategory, UnitDefinition } from './mapping/unit-converter.js';
+export type { DatePrecision, DateConversionRule } from './mapping/date-converter.js';
+export type { SchemaFieldType, SchemaFieldDef, SchemaDefinition, SchemaValidationError } from './mapping/schema-validator.js';
+export type { MappingConfigBundle } from './mapping/mapping-config.js';
