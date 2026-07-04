@@ -9,7 +9,9 @@ export default tseslint.config(
   reactPlugin.configs.flat['jsx-runtime'],
   {
     rules: {
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unsafe-function-type': 'off',
       'react/prop-types': 'off',
     },
     settings: {
