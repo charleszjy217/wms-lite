@@ -1,0 +1,18 @@
+{
+  "name": "canonical-product",
+  "version": "1.0.0",
+  "allowExtraFields": true,
+  "fields": [
+    { "name": "sourceSystem", "type": "string", "required": true },
+    { "name": "sourceId", "type": "string", "required": true },
+    { "name": "sku", "type": "string", "required": true, "minLength": 1, "maxLength": 64 },
+    { "name": "name", "type": "string", "required": true, "minLength": 1, "maxLength": 256 },
+    { "name": "description", "type": "string", "maxLength": 2048 },
+    { "name": "categoryPath", "type": "string" },
+    { "name": "brand", "type": "string" },
+    { "name": "unit", "type": "string", "required": true },
+    { "name": "barcode", "type": "string" },
+    { "name": "active", "type": "boolean", "required": true },
+    { "name": "lastSyncAt", "type": "string", "required": true }
+  ]
+}

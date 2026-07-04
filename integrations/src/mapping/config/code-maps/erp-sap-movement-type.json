@@ -1,0 +1,13 @@
+{
+  "sourceSystem": "ERP_SAP",
+  "fieldName": "movementType",
+  "strict": false,
+  "defaultCanonical": "ADJUSTMENT_PLUS",
+  "entries": [
+    { "externalCode": "101", "canonicalCode": "RECEIPT" },
+    { "externalCode": "201", "canonicalCode": "SHIPMENT" },
+    { "externalCode": "301", "canonicalCode": "TRANSFER" },
+    { "externalCode": "102", "canonicalCode": "ADJUSTMENT_PLUS" },
+    { "externalCode": "202", "canonicalCode": "ADJUSTMENT_MINUS" }
+  ]
+}
